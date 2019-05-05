@@ -14,7 +14,7 @@ class CreateTableInstitutions extends Migration
   public function up() {
     Schema::create('institutions', function (Blueprint $table) {
       $table->increments('institution_id');
-      $table->string('name', 100);
+      $table->string('name', 100)->unique();
       $table->timestamps();
     });
   }

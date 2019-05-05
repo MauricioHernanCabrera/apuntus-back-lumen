@@ -14,7 +14,7 @@ class CreateTableCodeYears extends Migration
   public function up() {
     Schema::create('code_years', function (Blueprint $table) {
       $table->increments('code_year_id');
-      $table->string('name', 10);
+      $table->string('name', 10)->unique();
     });
   }
 

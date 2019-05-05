@@ -31,13 +31,13 @@ class NotesController extends Controller {
   public function getAll (Request $request) {
     $query = $request->query();
 
-    $column = ['subject_id', 'code_year_id', 'code_note_id'];
+    $fields = ['subject_id', 'code_year_id', 'code_note_id'];
     $relations = ['user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved'];
     
     
     
     $consulta = Note::with($relations)
-      ->where(array_only($query, $column));
+      ->where(array_only($query, $fields));
     
     if (isset($query['institution_id'])) {
       $institution_id = $query['institution_id'];

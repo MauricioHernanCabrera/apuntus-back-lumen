@@ -14,7 +14,7 @@ class CreateTableCodeNotes extends Migration
     public function up() {
       Schema::create('code_notes', function (Blueprint $table) {
         $table->increments('code_note_id');
-        $table->string('name', 30);
+        $table->string('name', 30)->unique();
       });
     }
 
