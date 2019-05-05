@@ -9,17 +9,29 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class NotesController extends Controller {
   public function createOne (Request $request) {
-    try {
-      $data = $request->json()->all();
-      $token_user = $request->header('token_user');
-      $user = User::where('token_user', '=', $token_user)->first();
+    $this->validate($request, [
+      'title' => 'required|max:80',
+      'description' => 'max:280',
+      'subject_id' => 'required|numeric|exists:subjects,subject_id',
+      'code_note_id' => 'required|numeric|exists:code_notes,code_note_id',
+      'code_year_id' => 'required|numeric|exists:code_years,code_year_id',
+    ]);
 
-      $data['user_id'] = $user->user_id;
-      $note = Note::create($data);
-      return response()->json($note, 201);
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
-    }
+    $allowed_fields = [
+      'subject_id',
+      'code_note_id',
+      'code_year_id',
+      'user_id',
+      'title',
+      'description',
+    ];
+    
+    $data = $request->json()->all();
+    
+    $data['user_id'] = $request->user()->user_id;
+
+    $note = Note::create(array_only($data, $allowed_fields));
+    return response()->json($note, 201);
   }
 
   public function deleteOne (Request $request, $note_id) {
@@ -31,15 +43,19 @@ class NotesController extends Controller {
   public function getAll (Request $request) {
     $query = $request->query();
 
-    $fields = ['subject_id', 'code_year_id', 'code_note_id'];
+    $allowed_fields = ['subject_id', 'code_year_id', 'code_note_id'];
     $relations = ['user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved'];
     
-    
-    
+    /* 
+      Agregar filtro por subject_id, code_year_id, code_note_id y cargar
+      relaciones user, subject.institution, code_note, code_year, 
+      notes_favorite, notes_saved
+    */
     $consulta = Note::with($relations)
-      ->where(array_only($query, $fields));
+      ->where(array_only($query, $allowed_fields));
     
     if (isset($query['institution_id'])) {
+      // Agregar filtro por institution id
       $institution_id = $query['institution_id'];
       
       $consulta = $consulta
@@ -49,6 +65,7 @@ class NotesController extends Controller {
     }
 
     if (isset($query['title'])) {
+      // Agregar filtro por texto en la busqueda al titulo y descripcion
       $title = $query['title'];
 
       $consulta = $consulta
@@ -65,7 +82,8 @@ class NotesController extends Controller {
   }
   
   public function getOne (Request $request, $note_id) {
-    $note = Note::findOrFail($note_id)->load('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved');
+    $note = Note::findOrFail($note_id)
+      ->load('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved');
     return response()->json($note, 200);
   }
 }

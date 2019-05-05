@@ -49,9 +49,26 @@ $router->group(['prefix' => 'api'], function () use ($router) {
       'uses' => 'CodeYearsController@getAll'
     ]);
   });
-
-
-
+    
+  $router->group(['prefix' => 'notes'], function () use ($router) {
+    // Free
+    $router->get('/', ['uses' => 'NotesController@getAll']);
+    $router->get('/{note_id}/', ['uses' => 'NotesController@getOne']);
+    
+    // User registers
+    $router->post('/', [
+      'middleware' => 'auth',
+      'uses' => 'NotesController@createOne'
+    ]);
+    $router->delete('/{note_id}/', [
+      'middleware' => 'auth',
+      'uses' => 'NotesController@deleteOne'
+    ]);
+    // $router->post('/{note_id}/reports', [
+    //   'middleware' => 'auth',
+    //   'uses' => 'NotesController@createReport'
+    // ]);
+  });
 
 
 
@@ -82,11 +99,6 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('/register/', ['uses' => 'AuthController@register']);
   });
   
-  $router->group(['prefix' => 'notes'], function () use ($router) {
-    $router->get('/', ['uses' => 'NotesController@getAll']);
-    $router->post('/', ['uses' => 'NotesController@createOne']);
-    $router->get('/{note_id}/', ['uses' => 'NotesController@getOne']);
-    // $router->delete('/{note_id}/', ['uses' => 'NotesController@deleteOne']);
-  });
+  
 });
 

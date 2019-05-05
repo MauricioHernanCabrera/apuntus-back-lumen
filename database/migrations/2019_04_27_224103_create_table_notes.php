@@ -19,7 +19,7 @@ class CreateTableNotes extends Migration
       $table->integer('code_note_id')->unsigned();
       $table->integer('code_year_id')->unsigned();
       $table->string('title', 80);
-      $table->string('description', 280);
+      $table->string('description', 280)->nullable();
 
       $table->foreign('user_id')->references('user_id')->on('users')->onDelete('cascade');
       $table->foreign('subject_id')->references('subject_id')->on('subjects')->onDelete('cascade');
