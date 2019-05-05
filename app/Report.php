@@ -4,9 +4,7 @@ namespace App;
 
 use App\Helpers\ModelMPK;
 
-class NoteSaved extends ModelMPK {
-  public $table = 'notes_saved';
-  public $incrementing = false;
+class NoteFavorite extends ModelMPK {
   protected $primaryKey = ['user_id', 'note_id'];
   protected $guarded = [];
 }
