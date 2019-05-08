@@ -17,7 +17,7 @@ class CodeYearsController extends Controller {
   }
 
   public function getOne (Request $request, $code_year_id) {
-    $code_year = CodeYear::findOrFail($code_year_id);
+    $code_year = CodeYear::firstOrFail($code_year_id);
     return response()->json($code_year, 200);
   }
 }

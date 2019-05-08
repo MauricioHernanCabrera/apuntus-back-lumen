@@ -35,9 +35,14 @@ class NotesController extends Controller {
   }
 
   public function deleteOne (Request $request, $note_id) {
-    $note = Note::findOrFail($note_id);
-    $note->delete();
-    return response()->json($note, 200);
+    $note = Note::firstOrFail($note_id);
+
+    if ($note->user->user_id == $request->user()->user_id) {
+      $note->delete();
+      return response()->json($note, 200);
+    } else {
+      return response('Usuario no autorizado', 401);
+    }
   }
 
   public function getAll (Request $request) {
@@ -82,7 +87,7 @@ class NotesController extends Controller {
   }
   
   public function getOne (Request $request, $note_id) {
-    $note = Note::findOrFail($note_id)
+    $note = Note::firstOrFail($note_id)
       ->load('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved');
     return response()->json($note, 200);
   }

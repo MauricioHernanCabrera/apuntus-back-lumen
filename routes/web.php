@@ -60,14 +60,12 @@ $router->group(['prefix' => 'api'], function () use ($router) {
       'middleware' => 'auth',
       'uses' => 'NotesController@createOne'
     ]);
+
     $router->delete('/{note_id}/', [
       'middleware' => 'auth',
       'uses' => 'NotesController@deleteOne'
     ]);
-    // $router->post('/{note_id}/reports', [
-    //   'middleware' => 'auth',
-    //   'uses' => 'NotesController@createReport'
-    // ]);
+    
   });
 
 
