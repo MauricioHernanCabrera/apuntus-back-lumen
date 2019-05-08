@@ -12,8 +12,7 @@ class InstitutionsController extends Controller {
       'name' => 'required|string|unique:institutions,name|max:100'
     ]);
     $data = $request->json()->all();
-    $allowed_fields = ['name'];
-    $institution = Institution::create(array_only($data, $allowed_fields));
+    $institution = Institution::create($data);
     return response()->json($institution, 201);
   }
 

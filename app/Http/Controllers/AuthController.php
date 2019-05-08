@@ -5,30 +5,20 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AuthController extends Controller {
   public function loginWithToken (Request $request) {
-    try {
-      $data = $request->json()->all();
-      $user = User::where('token_user', '=', $data['token_user'])->first();
-      
-      if ($user) {
-        $user->makeVisible('token_user');
-        return response()->json($user, 200);
-      } else {
-        return response()->json(['error' => '¡Recurso no encontrado!'], 404);
-      }
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
-    }
+    $data = $request->json()->all();
+    $user = User::where('token_user', $data['token_user'])->firstOrFail();
+    $user->makeVisible('token_user');
+    return response()->json($user, 200);
   }
 
   public function loginWithEmail (Request $request) {
     try {
     
       $data = $request->json()->all();
-      $user = User::where('email', '=', $data['email'])->first();
+      $user = User::where('email', $data['email'])->firstOrFail();
       
       $passwordDecrypt = Crypt::decrypt($user->password);
       
@@ -41,8 +31,7 @@ class AuthController extends Controller {
       } else {
         return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
       }
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
+      
     } catch (DecryptException $e) {
       return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
     }
@@ -52,7 +41,7 @@ class AuthController extends Controller {
     try {
     
       $data = $request->json()->all();
-      $user = User::where('username', '=', $data['username'])->first();
+      $user = User::where('username', '=', $data['username'])->firstOrFail();
       
       $passwordDecrypt = Crypt::decrypt($user->password);
       
@@ -65,29 +54,35 @@ class AuthController extends Controller {
       } else {
         return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
       }
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
     } catch (DecryptException $e) {
       return response()->json(['error' => '¡Usuario o contraseña invalido!'], 404);
     }
   }
 
   public function register (Request $request) {
-    try {
-      $data = $request->json()->all();
-      $user = User::create([
-        'username' => $data['username'],
-        'email' => $data['email'],
-        'password' => Crypt::encrypt($data['password']),
-        'token_user' => Crypt::encrypt($data['email'] . $data['password'])
-      ]);
-      $user->makeVisible('token_user');
-      return response()->json($user, 201);
+    $this->validate($request, [
+      'username' => 'required|regex:/^[a-zA-Z0-9\-\ñ\Ñ\.\_]+$|unique:users,username|max:60',
+      'email' => 'required|email|unique:users,email|max:100',
+      'password' => 'required|max:200',
+    ]);
 
-    } catch (ModelNotFoundException $e) {
-      return response()->json(['error' => '¡Recursos proporcionados invalidos!'], 400);
-    }
-    
-    return response()->json($institution, 201);
+    $data = $request->json()->all();
+
+    $allowed_fields = [
+      'username',
+      'email',
+      'password',
+      'token_user'
+    ];
+
+    $user = User::create(array_only([
+      'username' => $data['username'],
+      'email' => $data['email'],
+      'password' => Crypt::encrypt($data['password']),
+      'token_user' => Crypt::encrypt($data['email'] . $data['password'])
+    ], $allowed_fields));
+
+    $user->makeVisible('token_user');
+    return response()->json($user, 201);
   }
 }

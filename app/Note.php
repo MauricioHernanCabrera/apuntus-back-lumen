@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Note extends Model {
   protected $primaryKey = 'note_id';
-  // public $timestamps = false;
-
-  protected $guarded = [];
-  
-  // protected $fillable = [];
-
-  // protected $hidden = [''];
+  protected $fillable = [
+    'user_id',
+    'subject_id',
+    'code_note_id',
+    'code_year_id',
+    'title',
+    'description',
+  ];
 
   public function user () {
     return $this->belongsTo('App\User', 'user_id');

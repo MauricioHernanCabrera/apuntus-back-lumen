@@ -6,14 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model {
   protected $primaryKey = 'subject_id';
-  // public $timestamps = false;
-
-  protected $guarded = [];
-  
-  // protected $fillable = [];
-
-  // protected $hidden = [''];
-
+  protected $fillable = [
+    'institution_id',
+    'name'
+  ];
   public function institution () {
     return $this->belongsTo('App\Institution', 'institution_id');
   }

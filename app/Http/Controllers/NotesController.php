@@ -16,21 +16,11 @@ class NotesController extends Controller {
       'code_note_id' => 'required|numeric|exists:code_notes,code_note_id',
       'code_year_id' => 'required|numeric|exists:code_years,code_year_id',
     ]);
-
-    $allowed_fields = [
-      'subject_id',
-      'code_note_id',
-      'code_year_id',
-      'user_id',
-      'title',
-      'description',
-    ];
     
     $data = $request->json()->all();
-    
     $data['user_id'] = $request->user()->user_id;
 
-    $note = Note::create(array_only($data, $allowed_fields));
+    $note = Note::create($data);
     return response()->json($note, 201);
   }
 
@@ -41,7 +31,7 @@ class NotesController extends Controller {
       $note->delete();
       return response()->json($note, 200);
     } else {
-      return response('Usuario no autorizado', 401);
+      return response(['error' => '¡Usuario no autorizado!'], 401);
     }
   }
 
@@ -56,8 +46,7 @@ class NotesController extends Controller {
       relaciones user, subject.institution, code_note, code_year, 
       notes_favorite, notes_saved
     */
-    $consulta = Note::with($relations)
-      ->where(array_only($query, $allowed_fields));
+    $consulta = Note::with($relations)->where(array_only($query, $allowed_fields));
     
     if (isset($query['institution_id'])) {
       // Agregar filtro por institution id

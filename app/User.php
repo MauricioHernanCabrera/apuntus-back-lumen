@@ -13,18 +13,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
   use Authenticatable, Authorizable;
 
   protected $primaryKey = 'user_id';
-  /**
-   * The attributes that are mass assignable.
-   *
-   * @var array
-   */
-  protected $guarded = [];
 
-  /**
-   * The attributes excluded from the model's JSON form.
-   *
-   * @var array
-   */
+  protected $fillable = [
+    'password',
+    'token_user',
+    'email',
+    'username',
+  ];
+
   protected $hidden = [
     'password', 'token_user'
   ];
