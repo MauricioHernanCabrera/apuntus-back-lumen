@@ -61,28 +61,29 @@ class AuthController extends Controller {
 
   public function register (Request $request) {
     $this->validate($request, [
-      'username' => 'required|regex:/^[a-zA-Z0-9\-\ñ\Ñ\.\_]+$|unique:users,username|max:60',
+      'username' => 'required|regex:/^[a-zA-Z0-9\-\ñ\Ñ\.\_]+$/|unique:users,username|max:60',
       'email' => 'required|email|unique:users,email|max:100',
       'password' => 'required|max:200',
     ]);
 
     $data = $request->json()->all();
 
-    $allowed_fields = [
-      'username',
-      'email',
-      'password',
-      'token_user'
-    ];
-
-    $user = User::create(array_only([
+    $user = User::create([
       'username' => $data['username'],
       'email' => $data['email'],
       'password' => Crypt::encrypt($data['password']),
       'token_user' => Crypt::encrypt($data['email'] . $data['password'])
-    ], $allowed_fields));
+    ]);
 
     $user->makeVisible('token_user');
+    return response()->json($user, 201);
+  }
+
+  public function sendEmailResetPassword (Request $request) {
+    return response()->json($user, 201);
+  }
+
+  public function resetPassword (Request $request) {
     return response()->json($user, 201);
   }
 }

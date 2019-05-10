@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Note;
 use App\User;
+use App\Report;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class NotesController extends Controller {
@@ -26,7 +28,7 @@ class NotesController extends Controller {
 
   public function deleteOne (Request $request, $note_id) {
     $note = Note::firstOrFail($note_id);
-
+    
     if ($note->user->user_id == $request->user()->user_id) {
       $note->delete();
       return response()->json($note, 200);
@@ -34,17 +36,47 @@ class NotesController extends Controller {
       return response(['error' => '¡Usuario no autorizado!'], 401);
     }
   }
+  
+  public function reportOne (Request $request, $note_id) {
+    $data = $request->json()->all();
+    $user = $request->user();
+    $request['note_id'] = $note_id;
+
+    $this->validate($request, [
+      'note_id' => [
+        'required',
+        /*
+          Validar que la note_id no exista en el usuario pasado por parametro
+        */
+        Rule::unique('reports', 'note_id')->where(function ($query) use ($user) {
+          return $query->where('user_id', $user->user_id);
+        }),
+      ],
+      'code_report_id' => [
+        'required',
+        'exists:code_reports,code_report_id'
+      ]
+    ]);
+
+    $report = Report::create([
+      'user_id' => $user->user_id,
+      'note_id' => $note_id,
+      'code_report_id' => $data['code_report_id'],
+    ]);
+
+    return response()->json($report, 201);
+  }
 
   public function getAll (Request $request) {
     $query = $request->query();
 
     $allowed_fields = ['subject_id', 'code_year_id', 'code_note_id'];
-    $relations = ['user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved'];
+    $relations = ['user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes'];
     
     /* 
       Agregar filtro por subject_id, code_year_id, code_note_id y cargar
       relaciones user, subject.institution, code_note, code_year, 
-      notes_favorite, notes_saved
+      notes_favorite, saved_notes
     */
     $consulta = Note::with($relations)->where(array_only($query, $allowed_fields));
     
@@ -77,7 +109,7 @@ class NotesController extends Controller {
   
   public function getOne (Request $request, $note_id) {
     $note = Note::firstOrFail($note_id)
-      ->load('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'notes_saved');
+      ->load('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes');
     return response()->json($note, 200);
   }
 }

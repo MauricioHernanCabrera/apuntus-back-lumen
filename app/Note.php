@@ -35,7 +35,7 @@ class Note extends Model {
     return $this->belongsToMany('App\User', 'notes_favorite', 'note_id', 'user_id');
   }
 
-  public function notes_saved () {
-    return $this->belongsToMany('App\User', 'notes_saved', 'note_id', 'user_id');
+  public function saved_notes () {
+    return $this->belongsToMany('App\User', 'saved_notes', 'note_id', 'user_id');
   }
 }

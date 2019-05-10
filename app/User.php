@@ -22,14 +22,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
   ];
 
   protected $hidden = [
-    'password', 'token_user'
+    'password',
+    'token_user'
   ];
 
   public function notes_favorite () {
     return $this->belongsToMany('App\Note', 'notes_favorite', 'user_id', 'note_id');
   }
 
-  public function notes_saved () {
-    return $this->belongsToMany('App\Note', 'notes_saved', 'user_id', 'note_id');
+  public function saved_notes () {
+    return $this->belongsToMany('App\Note', 'saved_notes', 'user_id', 'note_id');
   }
 }

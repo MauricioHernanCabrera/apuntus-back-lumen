@@ -60,12 +60,15 @@ $router->group(['prefix' => 'api'], function () use ($router) {
       'middleware' => 'auth',
       'uses' => 'NotesController@createOne'
     ]);
-
     $router->delete('/{note_id:\d+}/', [
       'middleware' => 'auth',
       'uses' => 'NotesController@deleteOne'
     ]);
-    
+
+    $router->post('/{note_id:\d+}/report', [
+      'middleware' => 'auth',
+      'uses' => 'NotesController@reportOne'
+    ]);
   });
 
   $router->group(['prefix' => 'auth'], function () use ($router) {
@@ -74,25 +77,38 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('/login-with-email/', ['uses' => 'AuthController@loginWithEmail']);
     $router->post('/login-with-username/', ['uses' => 'AuthController@loginWithUsername']);
     $router->post('/register/', ['uses' => 'AuthController@register']);
+    
+    // $router->post('/password-reset/', ['uses' => 'AuthController@sendEmailResetPassword']);
+    // $router->get('/password-reset/{secret_id}/', ['uses' => 'AuthController@resetPassword']);
   });
 
-
-
   $router->group(['prefix' => 'user'], function () use ($router) {
-    // $router->update('/me/', ['uses' => 'UserController@updateProfile']);
-    
-    $router->post('/me/favorites/', ['uses' => 'UserController@addNoteFavorite']);
-    $router->delete('/me/favorites/{note_id:\d+}', ['uses' => 'UserController@removeNoteFavorite']);
-    
-    $router->post('/me/saved/', ['uses' => 'UserController@addNoteSaved']);
-    $router->delete('/me/saved/{note_id:\d+}', ['uses' => 'UserController@removeNoteSaved']);
-    
-    
-    $router->get('/{username:[a-zA-Z0-9\-\ñ\Ñ\.\_]}/', ['uses' => 'UserController@getOne']);
+    // Register
 
-    $router->get('/{username:[a-zA-Z0-9\-\ñ\Ñ\.\_]}/notes', ['uses' => 'UserController@getNotes']);
-    $router->get('/{username:[a-zA-Z0-9\-\ñ\Ñ\.\_]}/favorite/', ['uses' => 'UserController@getNotesFavorite']);
-    $router->get('/{username:[a-zA-Z0-9\-\ñ\Ñ\.\_]}/saved/', ['uses' => 'UserController@getNotesSaved']);
+    $router->group(['prefix' => 'me', 'middleware' => 'auth',], function () use ($router) {
+      $router->patch('/', ['uses' => 'UserController@updateProfile']);
+
+      $router->post('/favorites/', ['uses' => 'UserController@addNoteFavorite']);
+      $router->delete('/favorites/{note_id:\d+}', ['uses' => 'UserController@removeNoteFavorite']);
+      $router->post('/saved/', ['uses' => 'UserController@addSavedNote']);
+      $router->delete('/saved/{note_id:\d+}', ['uses' => 'UserController@removeSavedNote']);
+    });
+    
+    // Free
+    $router->group(['prefix' => '{username:[a-zA-Z0-9\-\ñ\Ñ\.\_]+}'], function () use ($router) {
+      $router->get('/', [
+        'uses' => 'UserController@getOne'
+      ]);
+      $router->get('/notes/', [
+        'uses' => 'UserController@getNotes'
+      ]);
+      $router->get('/favorite/', [
+        'uses' => 'UserController@getNotesFavorite'
+      ]);
+      $router->get('/saved/', [
+        'uses' => 'UserController@getNotesSaved'
+      ]);
+    });
   });
 });
 

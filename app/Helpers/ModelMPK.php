@@ -5,8 +5,7 @@ namespace App\Helpers;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
-class ModelMPK extends Model
-{
+class ModelMPK extends Model {
   /**
    * Set the keys for a save update query.
    *
