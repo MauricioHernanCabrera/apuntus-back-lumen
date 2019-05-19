@@ -13,6 +13,7 @@ class Note extends Model {
     'code_year_id',
     'title',
     'description',
+    'google_folder_id'
   ];
 
   public function user () {
@@ -37,5 +38,17 @@ class Note extends Model {
 
   public function saved_notes () {
     return $this->belongsToMany('App\User', 'saved_notes', 'note_id', 'user_id');
+  }
+
+  public function is_favorite ($user) {
+    $is_favorite = $this->notes_favorite->contains($user);
+    $this->makeHidden(['notes_favorite']);
+    return $user !== null && $is_favorite;
+  }
+
+  public function is_saved ($user) {
+    $is_saved = $this->saved_notes->contains($user);
+    $this->makeHidden(['saved_notes']);
+    return $user !== null && $is_saved;
   }
 }

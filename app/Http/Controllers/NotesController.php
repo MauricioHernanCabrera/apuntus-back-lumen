@@ -69,17 +69,19 @@ class NotesController extends Controller {
 
   public function getAll (Request $request) {
     $query = $request->query();
+    $token_user = $request->header('token_user');
+    $user = User::where('token_user', $token_user)->first();
 
     $allowed_fields = ['subject_id', 'code_year_id', 'code_note_id'];
-    $relations = ['user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes'];
+    $relations = ['user', 'subject.institution', 'code_note', 'code_year'];
     
     /* 
       Agregar filtro por subject_id, code_year_id, code_note_id y cargar
       relaciones user, subject.institution, code_note, code_year, 
       notes_favorite, saved_notes
     */
-    $consulta = Note::with($relations)->where(array_only($query, $allowed_fields));
-    
+    $consulta = Note::where(array_only($query, $allowed_fields));
+
     if (isset($query['institution_id'])) {
       // Agregar filtro por institution id
       $institution_id = $query['institution_id'];
@@ -103,13 +105,33 @@ class NotesController extends Controller {
     }
 
     $notes = $consulta->get();
+    $notes->load($relations);
+    $notes->loadCount('notes_favorite');
+
+    for ($i = 0; $i < sizeof($notes); $i++) {
+      $notes[$i]->{"is_favorite"} = $notes[$i]->is_favorite($user);
+      $notes[$i]->{"is_saved"} = $notes[$i]->is_saved($user);
+    }
     
     return response()->json($notes, 200);
   }
   
   public function getOne (Request $request, $note_id) {
-    $note = Note::firstOrFail($note_id)
-      ->load('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes');
+    $token_user = $request->header('token_user');
+    $user = User::where('token_user', $token_user)->first();
+
+    $note = Note::findOrFail($note_id)
+      ->load(
+        'user',
+        'subject.institution',
+        'code_note',
+        'code_year',
+      )
+      ->loadCount('notes_favorite');
+    
+    $note->{"is_favorite"} = $note->is_favorite($user);
+    $note->{"is_saved"} = $note->is_saved($user);
+
     return response()->json($note, 200);
   }
 }

@@ -34,18 +34,16 @@ $router->group(['prefix' => 'api'], function () use ($router) {
   });
 
   $router->group(['prefix' => 'code_notes'], function () use ($router) {
-    // User registers
+    // Free
     $router->get('/', [
-      'middleware' => 'auth',
       'uses' => 'CodeNotesController@getAll'
     ]);
   });
     
     
   $router->group(['prefix' => 'code_years'], function () use ($router) {
-    // User registers
+    // Free
     $router->get('/', [
-      'middleware' => 'auth',
       'uses' => 'CodeYearsController@getAll'
     ]);
   });
@@ -53,7 +51,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
   $router->group(['prefix' => 'notes'], function () use ($router) {
     // Free
     $router->get('/', ['uses' => 'NotesController@getAll']);
-    $router->get('/{note_id:\d+}/', ['uses' => 'NotesController@getOne']);
+    $router->get('/{note_id}/', ['uses' => 'NotesController@getOne']);
     
     // User registers
     $router->post('/', [

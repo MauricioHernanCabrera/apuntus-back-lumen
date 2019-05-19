@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Crypt;
 
 class AuthController extends Controller {
   public function loginWithToken (Request $request) {
-    $data = $request->json()->all();
-    $user = User::where('token_user', $data['token_user'])->firstOrFail();
+    $token_user = $request->header('token_user');
+    // return response()->json($token_user, 200);
+    $user = User::where('token_user', $token_user)->firstOrFail();
     $user->makeVisible('token_user');
     return response()->json($user, 200);
   }

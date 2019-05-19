@@ -35,7 +35,7 @@
 
 ## Code Note
 
-1. teoria
-2. resumen
-3. practico
-4. ejercicios
+1. Teoria
+2. Resumen
+3. Practico
+4. Ejercicios

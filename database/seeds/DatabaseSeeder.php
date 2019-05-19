@@ -24,9 +24,6 @@ class DatabaseSeeder extends Seeder {
         'name' => $item
       ]);
     }
-
-
-
     $code_years = [
       '2019/2020',
       '2018/2019',
@@ -53,9 +50,7 @@ class DatabaseSeeder extends Seeder {
     foreach ($code_years as $item) {
       DB::table('code_years')->insert([ 'name' => $item ]);
     }
-
     
-
     $code_notes = [
       'Teoria',
       'Resumen',
@@ -65,9 +60,6 @@ class DatabaseSeeder extends Seeder {
     foreach ($code_notes as $item) {
       DB::table('code_notes')->insert([ 'name' => $item ]);
     }
-
-
-
     $institutions = [
       'UNNE',
       'UTN'
@@ -124,9 +116,6 @@ class DatabaseSeeder extends Seeder {
         'institution_id' => 2
       ]);
     }
-
-
-
     for ($i = 1; $i <= 10; $i++) {
       $base = Str::random(10);
       DB::table('users')->insert([
@@ -142,22 +131,18 @@ class DatabaseSeeder extends Seeder {
       'password' => Crypt::encrypt('123456789'),
       'token_user' => Crypt::encrypt('hola@gmail.comhola'),
     ]);
-
-
-    for ($i = 1; $i <= 10; $i++) {
+    // for ($i = 1; $i <= 10; $i++) {
       
-      DB::table('notes')->insert([
-        'user_id' => rand(1, 10),
-        'subject_id' => rand(1, 70),
-        'code_note_id' => rand(1, 4),
-        'code_year_id' => rand(1, 21),
-        'title' => Str::random(rand(50, 80)),
-        'description' => Str::random(rand(120, 280)),
-        'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-        'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
-      ]);
-    }
-
-
+    //   DB::table('notes')->insert([
+    //     'user_id' => rand(1, 10),
+    //     'subject_id' => rand(1, 70),
+    //     'code_note_id' => rand(1, 4),
+    //     'code_year_id' => rand(1, 21),
+    //     'title' => Str::random(rand(50, 80)),
+    //     'description' => Str::random(rand(120, 280)),
+    //     'created_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+    //     'updated_at' => (new \DateTime())->format('Y-m-d H:i:s'),
+    //   ]);
+    // }
   }
 }

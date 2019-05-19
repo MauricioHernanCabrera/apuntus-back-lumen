@@ -18,6 +18,7 @@ class CreateTableNotes extends Migration
       $table->integer('subject_id')->unsigned();
       $table->integer('code_note_id')->unsigned();
       $table->integer('code_year_id')->unsigned();
+      $table->string('google_folder_id', 60);
       $table->string('title', 80);
       $table->string('description', 280)->nullable();
 

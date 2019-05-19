@@ -40,7 +40,6 @@ class UserController extends Controller {
       ],
     ]);
 
-
     $note = NoteFavorite::create([
       'user_id' => $user->user_id,
       'note_id' => $data['note_id']
@@ -104,9 +103,9 @@ class UserController extends Controller {
 
   public function getNotes (Request $request, $username) {
     $user = User::where('username', $username)->firstOrFail();
-    $notes = Note::with('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes')
-      ->where(['user_id' => $user->user_id])
-      ->get();
+    $notes = Note::where(['user_id' => $user->user_id])->get();
+    $notes = $this->loadData($notes, $user);
+    
     return response()->json($notes, 200);
   }
   
@@ -119,9 +118,9 @@ class UserController extends Controller {
     });
 
     if (sizeof($ids_notes_favorite) > 0) {
-      $notes = Note::with('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes')
-        ->whereIn('note_id', $ids_notes_favorite)
-        ->get();
+      $notes = Note::whereIn('note_id', $ids_notes_favorite)->get();
+
+      $notes = $this->loadData($notes, $user);
       return response()->json($notes, 200);
     }
 
@@ -138,12 +137,24 @@ class UserController extends Controller {
     });
 
     if (sizeof($ids_saved_notes) > 0) {
-      $notes = Note::with('user', 'subject.institution', 'code_note', 'code_year', 'notes_favorite', 'saved_notes')
-        ->whereIn('note_id', $ids_saved_notes)
-        ->get();
+      $notes = Note::whereIn('note_id', $ids_saved_notes)->get();
+      
+      $notes = $this->loadData($notes, $user);
       return response()->json($notes, 200);
     }
 
     return response()->json([], 200);
+  }
+
+  public function loadData ($notes, $user) {
+    $notes->load('user', 'subject.institution', 'code_note', 'code_year');
+    $notes->loadCount('notes_favorite');
+
+    for ($i = 0; $i < sizeof($notes); $i++) {
+      $notes[$i]->{"is_favorite"} = $notes[$i]->is_favorite($user);
+      $notes[$i]->{"is_saved"} = $notes[$i]->is_saved($user);
+    }
+
+    return $notes;
   }
 }
